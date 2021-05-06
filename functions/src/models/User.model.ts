@@ -1,4 +1,4 @@
-import {ID, InputData} from "./FirestoreUtils/BasicTypes";
+import {ID, InputData, WhereInput} from "./FirestoreUtils/BasicTypes";
 import {
   RECORD_NOT_FOUND,
   RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST,
@@ -41,6 +41,41 @@ const create = async (input: { data: InputData<User> }): Promise<User> => {
   };
 };
 
+const findUnique = async (input: { where: WhereInput | { email: string } }):
+  Promise<User> => {
+  const {where} = input;
+
+  let res;
+  if ("id" in where) {
+    res = firestore.collection(COLLECTION_NAME).doc(where.id);
+  } else {
+    res = firestore.collection(COLLECTION_NAME)
+        .where("email", "==", where.email);
+  }
+
+  const doc = await res.get();
+  if (("exists" in doc && !doc.exists) || ("size" in doc && doc.empty)) {
+    return Promise.reject(RECORD_NOT_FOUND);
+  }
+  let data;
+  if ("exists" in doc) {
+    data = doc.data();
+    if (data) {
+      data.id = doc.id;
+    }
+  } else if ("size" in doc) {
+    data = doc.docs[0].data();
+    data.id = doc.docs[0].id;
+  }
+  return Promise.resolve({
+    id: data?.id,
+    email: data?.email,
+    password: data?.password,
+    appointments: data?.appointments,
+  });
+};
+
 export default {
   create,
+  findUnique,
 };

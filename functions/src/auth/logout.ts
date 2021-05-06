@@ -1,12 +1,10 @@
 import models from "../models";
-import {COOKIE_KEY} from "./constants";
 
 // eslint-disable-next-line
-export default async (response: Record<string, any>): Promise<void> => {
-  models.session.delete({
+export default async (sessionId: string): Promise<void> => {
+  return models.session.delete({
     where: {
-      id: response[COOKIE_KEY],
+      id: sessionId,
     },
   });
-  delete response[COOKIE_KEY];
 };
