@@ -5,6 +5,7 @@ import ResponseStatus from "./ApiUtils/ResponseStatus";
 import {
   RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST,
 } from "../models/FirestoreUtils/ErrorInterface";
+import Auth from "../auth";
 
 const SALT_ROUND = 10;
 
@@ -23,14 +24,16 @@ export const signUpUser = functions.https.onCall(async (data: {
   return models.user.create({data: {
     email: email,
     password: hashSync(password, SALT_ROUND),
-  }}).then(({email, appointments}) => {
-    return {
+  }}).then(async function logInUser({email, appointments}) {
+    const response = {
       status: ResponseStatus.SUCCESS,
       payload: {
         email,
         appointments: appointments ?? [],
       },
     };
+    await Auth.login(email, response);
+    return response;
   }).catch((err) => {
     if (err === RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST) {
       return {
