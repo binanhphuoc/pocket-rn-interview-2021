@@ -1,6 +1,5 @@
-import { Button } from "@material-ui/core";
 import React from "react";
-import { useAuth } from "../../providers/AuthProvider";
+import Home from "../Home";
 
 export const Paths = {
   HOME: {
@@ -10,8 +9,11 @@ export const Paths = {
 };
 
 const MainLayout = () => {
-  const { signOut } = useAuth();
-  return <React.Fragment><Button onClick={signOut}>Sign Out</Button></React.Fragment>;
+  return (
+    <React.Fragment>
+      <Home />
+    </React.Fragment>
+  );
 };
 
 export default MainLayout;

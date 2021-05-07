@@ -1,0 +1,33 @@
+{
+	// Place your OuterZone-Kickstarter workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"TSX Boilerplate": {
+		"scope": "typescriptreact",
+		"prefix": "reactstyle",
+		"body": [
+			"import { createStyles, withStyles, WithStyles } from \"@material-ui/core/styles\";",
+			"import React from \"react\";",
+			"",
+			"const styles = () =>",
+			"  createStyles({",
+			"    root: {}",
+			"  });",
+			"",
+			"class ${TM_FILENAME_BASE/index/Index/} extends React.Component<WithStyles<typeof styles>> {",
+			"  render() {",
+			"    return (",
+			"      $1",
+			"    );",
+			"  }",
+			"}",
+			"",
+			"export default withStyles(styles)(${TM_FILENAME_BASE/index/Index/});"
+		],
+		"description": "Boilerplate for React with Material UI stylesheet"
+	}
+}
