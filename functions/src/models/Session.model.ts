@@ -1,5 +1,5 @@
-import {ID, InputData, WhereInput} from "./FirestoreUtils/BasicTypes";
-import {RECORD_NOT_FOUND} from "./FirestoreUtils/ErrorInterface";
+import { ID, InputData, WhereInput } from "./FirestoreUtils/BasicTypes";
+import { RECORD_NOT_FOUND } from "./FirestoreUtils/ErrorInterface";
 import firestore from "./FirestoreUtils/Instance";
 
 const COLLECTION_NAME = "session";
