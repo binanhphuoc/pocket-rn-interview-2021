@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import { Cookie, parseCookie } from "../auth/parse";
 import models from "../models";
+import { RECORD_NOT_FOUND } from "../models/FirestoreUtils/ErrorInterface";
 import { retrieveOrganizerInfoForEachApt, retrieveParticipantListForEachApt } from "./AppointmentUtils";
 import ResponseStatus from "./GeneralUtils/ResponseStatus";
 
@@ -177,3 +178,61 @@ export const createAppointment = functions.https.onCall(parseCookie(async (
     }
   })
 }));
+
+export const updateAppointmentDecision = functions.https.onCall(parseCookie(
+  async (
+    data: {
+      appointmentId: string;
+      decision: string;
+    },
+    cookie
+  ): Promise<{
+    status: ResponseStatus;
+    errors?: ("INVALID_DECISION" | "APPOINTMENT_NOT_FOUND" | "USER_NOT_LOGGED_IN" | "UNHANDLED_SERVER_ERROR")[]
+  }> => {
+    if (!cookie) {
+      return {
+        status: ResponseStatus.CLIENT_ERROR,
+        errors: ["USER_NOT_LOGGED_IN"]
+      };
+    }
+
+    return models.user.findUnique({
+      where: {
+        email: cookie.email
+      }
+    })
+    .then(function validateDecision(user) {
+      if (["maybe", "accepted", "declined"].findIndex(
+          acceptedValue => data.decision === acceptedValue) < 0) {
+        return Promise.reject("INVALID_DECISION");
+      }
+      return user;
+    })
+    .then((({ id: userId }) => 
+      models.connectionAppointmentParticipant.update({
+        where: {
+          appointmentId: data.appointmentId,
+          participantId: userId
+        },
+        data: {
+          decision: data.decision
+        }
+      })
+    )).then(() => ({
+      status: ResponseStatus.SUCCESS
+    })).catch(err => {
+      if (err !== "INVALID_DECISION" && err !== RECORD_NOT_FOUND) {
+        return {
+            status: ResponseStatus.INTERNAL_ERROR,
+            errors: ["UNHANDLED_SERVER_ERROR"]
+        };
+      }
+      return {
+          status: ResponseStatus.CLIENT_ERROR,
+          errors: [err === RECORD_NOT_FOUND ? 
+            "APPOINTMENT_NOT_FOUND" : "INVALID_DECISION"]
+      };
+    });
+  }
+));

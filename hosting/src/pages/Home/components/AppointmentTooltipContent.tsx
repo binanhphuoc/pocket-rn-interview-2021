@@ -9,9 +9,10 @@ const useStyles = makeStyles(() => ({
   }
 }));
 const Content = ({
-  children, appointmentData, toggleEdit, ...restProps
+  children, appointmentData, toggleEdit, setDecision, ...restProps
 }: AppointmentTooltip.ContentProps & {
   toggleEdit: (shouldAllowEdit: boolean) => void;
+  setDecision: (appointmentId: string, decision: "maybe" | "accepted" | "declined") => void;
 }) => {
   const classes = useStyles();
   const { user: currentUser } = useAuth();
@@ -20,7 +21,8 @@ const Content = ({
     return <div></div>;
   }
 
-  const { participants } = appointmentData;
+  const { participants, id: appointmentId } = appointmentData;
+
   const organizerInfo = (participants as any[]).find(({ isOrganizer }) => isOrganizer);
 
   if (organizerInfo.email !== currentUser?.email) {
@@ -41,7 +43,11 @@ const Content = ({
         <Grid item xs={10}>
           <RadioGroup row aria-label="position" name="position" 
               value={userParticipationInfo.decision}
-              onChange={(e) => { console.log(e.target.value); }}>
+              onChange={(e) => { 
+                setDecision(
+                  appointmentId as string, 
+                  e.target.value as "maybe" | "accepted" | "declined");
+              }}>
             <FormControlLabel value="accepted" control={<Radio color="primary" />} label="Accept" />
             <FormControlLabel value="maybe" control={<Radio color="primary" />} label="Maybe" />
             <FormControlLabel value="declined" control={<Radio color="primary" />} label="Decline" />

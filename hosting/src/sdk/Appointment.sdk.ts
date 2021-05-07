@@ -2,7 +2,7 @@ import { attach, parse } from "../cookie";
 import firebaseFunctions from "./conf";
 import { extractErrors, handleUnexpectedErrors, UnexpectedError } from "./ErrorUtils";
 
-type Appointment = {
+export type Appointment = {
   id: string;
   title: string;
   startDate: Date;
@@ -33,8 +33,20 @@ export async function createAppointment(input: {
   startDate: string;
   endDate: string;
   participantList: string[];
-}): Promise<Appointment[]> {
+}): Promise<Appointment> {
   return firebaseFunctions.httpsCallable("createAppointment")(attach(input))
+    .then(({ data }) => {
+      parse(data);
+      return extractErrors(data);
+    }).catch(handleUnexpectedErrors);
+};
+
+export type updateAppointmentDecisionError = "INVALID_DECISION" | "APPOINTMENT_NOT_FOUND" | "USER_NOT_LOGGED_IN" | "UNHANDLED_SERVER_ERROR" | UnexpectedError;
+export async function updateAppointmentDecision(input: {
+  appointmentId: string;
+  decision: string;
+}): Promise<void> {
+  return firebaseFunctions.httpsCallable("updateAppointmentDecision")(attach(input))
     .then(({ data }) => {
       parse(data);
       return extractErrors(data);

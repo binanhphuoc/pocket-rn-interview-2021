@@ -7,8 +7,8 @@ import { AppBar, Avatar, Button, CssBaseline, makeStyles, Toolbar, Typography } 
 import Paper from '@material-ui/core/Paper';
 import { useEffect, useState } from 'react';
 import { useAuth } from "../../providers/AuthProvider";
-import { createAppointment, getAppointmentOfUser } from '../../sdk/Appointment.sdk';
-import { Appointment } from "./components/AppointmentDataType";
+import { createAppointment, getAppointmentOfUser, updateAppointmentDecision } from '../../sdk/Appointment.sdk';
+import { Appointment, formatAppointmentRawData } from "./components/AppointmentDataType";
 import AppointmentFormBasicLayout from "./components/AppointmentFormBasicLayout";
 import AppointmentFormTextEditor from "./components/AppointmentFormTextEditor";
 import AppointmentTooltipContent from "./components/AppointmentTooltipContent";
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Home = () => {
   const classes = useStyles();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [allowEdit, setAllowEdit] = useState<boolean>(false);
   const [appointmentData, setAppointmentData] = useState<Appointment[]>([]);
 
@@ -53,21 +53,30 @@ const Home = () => {
     getAppointmentOfUser()
       .then((appointmentRawData) => {
         setAppointmentData(
-          appointmentRawData.map(({ startDate, endDate, participants, ...rest }) => ({
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            ...rest,
-            participants: participants.map(((participantInfo) => ({
-              isOrganizer: participantInfo.email === rest.organizer.email,
-              ...participantInfo,
-              decision: participantInfo.decision as ("maybe" | "accepted" | "declined")
-            })))
-          })))
+          appointmentRawData.map(formatAppointmentRawData));
       })
       .catch(err => {
         console.error(err);
       })
   }, [])
+
+  const updateTooltipDecision = (appointmentId: string, decision: "accepted" | "maybe" | "declined"): void => {
+    updateAppointmentDecision({
+      appointmentId,
+      decision
+    }).then(() => {
+      const newAppointmentData = [...appointmentData];
+      const currentTooltipAppointment = 
+        newAppointmentData.find(({ id }) => id === appointmentId);
+      const participationInfoOfCurrentUser = 
+        currentTooltipAppointment?.participants?.find(
+          ({ email }) => email === user?.email);
+      if (participationInfoOfCurrentUser) {
+        participationInfoOfCurrentUser.decision = decision;
+        setAppointmentData(newAppointmentData);
+      }
+    }).catch(console.log);
+  };
 
   return (
     <div className={classes.root}>
@@ -99,9 +108,14 @@ const Home = () => {
                     endDate: added.endDate?.toString(),
                     participantList: added.participants?.map(
                       ({ email }: { email: string }) => email)
-                  }).then(console.log)
+                  }).then((appointmentRawData) => {
+                    const newAppointmentData = [...appointmentData];
+                    newAppointmentData.push(formatAppointmentRawData(appointmentRawData));
+                    setAppointmentData(newAppointmentData);
+                  })
                   .catch(console.log);
                 }
+                
               }}
             />
             <IntegratedEditing />
@@ -114,7 +128,12 @@ const Home = () => {
             <TodayButton />
             <Appointments />
             <AppointmentTooltip
-              contentComponent={(props) => (<AppointmentTooltipContent {...props} toggleEdit={(allowEdit: boolean) => setAllowEdit(allowEdit)}/>)}
+              contentComponent={(props) => (
+                <AppointmentTooltipContent
+                  {...props}
+                  toggleEdit={(allowEdit: boolean) => setAllowEdit(allowEdit)}
+                  setDecision={updateTooltipDecision}
+                />)}
               showOpenButton={allowEdit}
               showDeleteButton={allowEdit}
             />
