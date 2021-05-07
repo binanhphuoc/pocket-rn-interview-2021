@@ -49,6 +49,7 @@ const BasicLayout = ({ onFieldChange, appointmentData, toggleEdit, ...restProps 
           onChange={onInvitationChange}
           placeholder={"Type emails to invite..."}
           fullWidth
+          newChipKeyCodes={[13, 188]}
         />
       }
       {

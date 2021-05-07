@@ -3,9 +3,8 @@ import {
   AppointmentForm, Appointments, AppointmentTooltip, DateNavigator, MonthView,
   Scheduler, TodayButton, Toolbar as SchedulerToolbar, ViewSwitcher, WeekView
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { AppBar, Avatar, Badge, Button, CssBaseline, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Avatar, Button, CssBaseline, makeStyles, Toolbar, Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
-import { Notifications as NotificationsIcon } from "@material-ui/icons";
 import { useState } from 'react';
 import { useAuth } from "../../providers/AuthProvider";
 import { appointments } from '../SampleData/appointments';
@@ -56,13 +55,8 @@ const Home = () => {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Pocket Nurse
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
           <Button onClick={signOut}>Sign Out</Button>
-          <Avatar>P</Avatar>
+          <Avatar />
         </Toolbar>
       </AppBar>
       <main className={classes.content}>
