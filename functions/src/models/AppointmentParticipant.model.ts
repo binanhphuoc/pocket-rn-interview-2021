@@ -69,16 +69,21 @@ const update = async (input: {
   if (("exists" in doc && !doc.exists) || ("size" in doc && doc.empty)) {
     return Promise.reject(RECORD_NOT_FOUND);
   }
-  let data;
+
   if ("exists" in doc) {
-    data = doc.data();
-    if (data) {
-      data.id = doc.id;
-    }
+    await doc.ref.update(input.data);
   } else if ("size" in doc) {
-    data = doc.docs[0].data();
-    data.id = doc.docs[0].id;
+    await doc.docs[0].ref.update(input.data);
   }
+
+  const snapshot = await res.get();
+  let data;
+  if ("exists" in snapshot) {
+    data = snapshot.data();
+  } else if ("size" in doc) {
+    data = snapshot.docs[0].data();
+  }
+
   return {
     id: data?.id,
     appointmentId: data?.appointmentId,

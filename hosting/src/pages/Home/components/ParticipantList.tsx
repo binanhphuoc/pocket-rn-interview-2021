@@ -40,6 +40,7 @@ const DECLINED = "✗";
 export default function ParticipantList(props: Props) {
   const classes = useStyles();
   const { data } = props;
+  console.log(data);
 
   return (
     <List className={classes.root}>

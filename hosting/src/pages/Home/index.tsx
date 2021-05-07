@@ -8,6 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import { useEffect, useState } from 'react';
 import { useAuth } from "../../providers/AuthProvider";
 import { createAppointment, getAppointmentOfUser, updateAppointmentDecision } from '../../sdk/Appointment.sdk';
+import AppointmentComponent from "./components/AppointmentComponent";
 import { Appointment, formatAppointmentRawData } from "./components/AppointmentDataType";
 import AppointmentFormBasicLayout from "./components/AppointmentFormBasicLayout";
 import AppointmentFormTextEditor from "./components/AppointmentFormTextEditor";
@@ -86,7 +87,7 @@ const Home = () => {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Pocket Nurse
           </Typography>
-          <Button onClick={signOut}>Sign Out</Button>
+          <Button onClick={signOut} color="inherit">Sign Out {user?.email}</Button>
           <Avatar />
         </Toolbar>
       </AppBar>
@@ -126,7 +127,9 @@ const Home = () => {
             <ViewSwitcher />
             <DateNavigator />
             <TodayButton />
-            <Appointments />
+            <Appointments
+              appointmentComponent={AppointmentComponent}
+            />
             <AppointmentTooltip
               contentComponent={(props) => (
                 <AppointmentTooltipContent
