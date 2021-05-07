@@ -25,7 +25,7 @@ const create = async (input: {
   Object.keys(defaultValues).forEach((fieldName) => 
     // eslint-disable-next-line
     // @ts-ignore
-    (input.data[fieldName] = defaultValues[fieldName]));
+    (input.data[fieldName] = input.data[fieldName] ?? defaultValues[fieldName]));
   
   const existingRecordsQueryRef = firestore.collection(COLLECTION_NAME)
     .where("appointmentId", "==", input.data.appointmentId)
@@ -88,7 +88,7 @@ const update = async (input: {
 }
 
 export const deleteMany = async (input: { 
-    where: {id?: ID; appointmentId?: ID; participantId?: ID; }
+    where: { appointmentId?: ID; participantId?: ID; }
 }): Promise<void> => {
   const {where} = input;
 
@@ -100,7 +100,7 @@ export const deleteMany = async (input: {
   Object.keys(where).forEach((whereKey) => {
     // eslint-disable-next-line
     // @ts-ignore
-    res.where(whereKey, "==", where[whereKey]);
+    res = res.where(whereKey, "==", where[whereKey]);
   })
 
   const maybeDocs = await res.get();
@@ -115,8 +115,39 @@ export const deleteMany = async (input: {
   return Promise.resolve();
 };
 
+const findMany = async (input: { 
+  where: { appointmentId?: ID; participantId?: ID; }
+}): Promise<AppointmentParticipantConnection[]> => {
+  const {where} = input;
+
+  if (Object.keys(where).length === 0) {
+    return Promise.reject(INVALID_WHERE_ARGS);
+  }
+
+  let res = firestore.collection(COLLECTION_NAME);
+  Object.keys(where).forEach((whereKey) => {
+    // eslint-disable-next-line
+    // @ts-ignore
+    res = res.where(whereKey, "==", where[whereKey]);
+  })
+
+  const maybeDocs = await res.get();
+  if (maybeDocs.empty) {
+    return Promise.reject(RECORD_NOT_FOUND);
+  }
+
+  const retrieveList: Promise<any>[] = []; // eslint-disable-line
+  maybeDocs.forEach((doc) => retrieveList.push(
+    doc.ref.get()
+      .then(res => 
+        !res.exists ? Promise.reject(RECORD_NOT_FOUND) : res.data()
+      )));
+  return Promise.all(retrieveList);
+}
+
 export default {
   create,
   update,
-  deleteMany
+  deleteMany,
+  findMany
 };

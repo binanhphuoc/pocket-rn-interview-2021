@@ -5,9 +5,10 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { AppBar, Avatar, Button, CssBaseline, makeStyles, Toolbar, Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from "../../providers/AuthProvider";
-import { appointments } from '../SampleData/appointments';
+import { createAppointment, getAppointmentOfUser } from '../../sdk/Appointment.sdk';
+import { Appointment } from "./components/AppointmentDataType";
 import AppointmentFormBasicLayout from "./components/AppointmentFormBasicLayout";
 import AppointmentFormTextEditor from "./components/AppointmentFormTextEditor";
 import AppointmentTooltipContent from "./components/AppointmentTooltipContent";
@@ -46,6 +47,27 @@ const Home = () => {
   const classes = useStyles();
   const { signOut } = useAuth();
   const [allowEdit, setAllowEdit] = useState<boolean>(false);
+  const [appointmentData, setAppointmentData] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    getAppointmentOfUser()
+      .then((appointmentRawData) => {
+        setAppointmentData(
+          appointmentRawData.map(({ startDate, endDate, participants, ...rest }) => ({
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            ...rest,
+            participants: participants.map(((participantInfo) => ({
+              isOrganizer: participantInfo.email === rest.organizer.email,
+              ...participantInfo,
+              decision: participantInfo.decision as ("maybe" | "accepted" | "declined")
+            })))
+          })))
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  }, [])
 
   return (
     <div className={classes.root}>
@@ -62,14 +84,25 @@ const Home = () => {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Paper classes={{ root: classes.paper }}>
-          <Scheduler data={appointments} height={"auto"}>
+          <Scheduler data={appointmentData} height={"auto"}>
             <ViewState
               defaultCurrentDate={new Date()}
               defaultCurrentViewName="Week"
             />
 
             <EditingState
-              onCommitChanges={({ added, changed, deleted, ...rest }) => { console.log(added, changed, deleted, rest)}}
+              onCommitChanges={({ added, changed, deleted, ...rest }) => { 
+                if (added) {
+                  createAppointment({
+                    title: added.title,
+                    startDate: added.startDate?.toString(),
+                    endDate: added.endDate?.toString(),
+                    participantList: added.participants?.map(
+                      ({ email }: { email: string }) => email)
+                  }).then(console.log)
+                  .catch(console.log);
+                }
+              }}
             />
             <IntegratedEditing />
 

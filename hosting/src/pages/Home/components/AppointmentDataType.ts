@@ -1,6 +1,5 @@
 export type Participant = {
-  firstName: string;
-  lastName: string;
+  id: string;
   email: string;
   isOrganizer: boolean;
   decision: "accepted" | "maybe" | "declined";

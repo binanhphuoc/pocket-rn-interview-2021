@@ -21,7 +21,7 @@ export async function signInUser(input: {
 
 export type GetCurrentUserError = "USER_NOT_LOGGED_IN" | UnexpectedError;
 export async function currentUser(): Promise<User> {
-  return firebaseFunctions.httpsCallable("currentUser")(attach({}))
+  return firebaseFunctions.httpsCallable("getCurrentUser")(attach({}))
     .then(({ data }) => {
       parse(data);
       return extractErrors(data);

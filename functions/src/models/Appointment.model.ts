@@ -26,8 +26,8 @@ const create = async (input: {
   return {
     id: res.id,
     title: data.title,
-    startDate: data.startDate,
-    endDate: data.endDate,
+    startDate: data?.startDate.toDate(),
+    endDate: data?.endDate.toDate(),
     organizerId: data.organizerId,
   };
 };
@@ -48,7 +48,32 @@ const deleteObject = async (input: { where: WhereInput }): Promise<void> => {
   return Promise.resolve();
 };
 
+const findUnique = async (input: { where: WhereInput }): Promise<Appointment> => {
+  const {where} = input;
+
+  const res = firestore.collection(COLLECTION_NAME).doc(where.id);
+  const doc = await res.get();
+
+  if (!doc.exists) {
+    return Promise.reject(RECORD_NOT_FOUND);
+  }
+
+  const data = doc.data();
+  if (data) {
+    data.id = doc.id;
+  }
+
+  return Promise.resolve({
+    id: data?.id,
+    title: data?.title,
+    startDate: data?.startDate.toDate(),
+    endDate: data?.endDate.toDate(),
+    organizerId: data?.organizerId
+  });
+};
+
 export default {
   create,
-  delete: deleteObject
+  delete: deleteObject,
+  findUnique
 };

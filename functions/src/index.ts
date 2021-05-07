@@ -1,3 +1,4 @@
+export * from "./apis/Appointment.api";
 export * from "./apis/User.api";
 
 // // Start writing Firebase Functions

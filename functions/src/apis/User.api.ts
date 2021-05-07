@@ -1,13 +1,13 @@
+import { compareSync, hashSync } from "bcrypt";
 import * as functions from "firebase-functions";
+import Auth from "../auth";
+import { Cookie, parseCookie } from "../auth/parse";
 import models from "../models";
-import {hashSync, compareSync} from "bcrypt";
-import ResponseStatus from "./ApiUtils/ResponseStatus";
 import {
   RECORD_NOT_FOUND,
-  RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST,
+  RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST
 } from "../models/FirestoreUtils/ErrorInterface";
-import Auth from "../auth";
-import {Cookie, parseCookie} from "../auth/parse";
+import ResponseStatus from "./GeneralUtils/ResponseStatus";
 
 const SALT_ROUND = 10;
 
@@ -50,7 +50,7 @@ export const signUpUser = functions.https.onCall(async (data: {
   });
 });
 
-export const currentUser = functions.https.onCall(parseCookie(async (
+export const getCurrentUser = functions.https.onCall(parseCookie(async (
     _data: undefined,
     cookie: Cookie
 ): Promise<{

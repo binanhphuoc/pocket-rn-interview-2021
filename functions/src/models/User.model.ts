@@ -1,7 +1,7 @@
-import {ID, InputData, WhereInput} from "./FirestoreUtils/BasicTypes";
+import { ID, InputData, WhereInput } from "./FirestoreUtils/BasicTypes";
 import {
   RECORD_NOT_FOUND,
-  RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST,
+  RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST
 } from "./FirestoreUtils/ErrorInterface";
 import firestore from "./FirestoreUtils/Instance";
 
@@ -11,7 +11,6 @@ type User = {
   id: ID;
   email: string; // Unique
   password: string;
-  appointments?: ID[];
 };
 
 const create = async (input: { data: InputData<User> }): Promise<User> => {
@@ -22,11 +21,10 @@ const create = async (input: { data: InputData<User> }): Promise<User> => {
     return Promise.reject(RECORD_WITH_UNIQUE_FIELD_ALREADY_EXIST);
   }
 
-  const {data: {email, password, appointments}} = input;
+  const {data: {email, password}} = input;
   const addNewRecordRef = await firestore.collection(COLLECTION_NAME).add({
     email,
-    password,
-    appointments: appointments ?? [],
+    password
   });
   const createdRecord = await addNewRecordRef.get();
   const data = createdRecord.exists ? createdRecord.data() : undefined;
@@ -36,8 +34,7 @@ const create = async (input: { data: InputData<User> }): Promise<User> => {
   return {
     id: addNewRecordRef.id,
     email: data.email,
-    password: data.password,
-    appointments: data.appointments,
+    password: data.password
   };
 };
 
@@ -70,8 +67,7 @@ const findUnique = async (input: { where: WhereInput | { email: string } }):
   return Promise.resolve({
     id: data?.id,
     email: data?.email,
-    password: data?.password,
-    appointments: data?.appointments,
+    password: data?.password
   });
 };
 

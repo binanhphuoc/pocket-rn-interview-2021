@@ -6,8 +6,6 @@ export const appointments = [
       id: 0,
       participants: [
         {
-          firstName: "Phuoc",
-          lastName: "Do",
           email: "binanhphuoc@gmail.com",
           isOrganizer: true,
           decision: "accepted"
