@@ -1,9 +1,40 @@
 import { AppointmentForm } from "@devexpress/dx-react-scheduler-material-ui";
+import ChipInput from "material-ui-chip-input";
+import { useAuth } from "../../../providers/AuthProvider";
+import { Participant } from "./AppointmentDataType";
+import ParticipantList from "./ParticipantList";
 
-const BasicLayout = ({ onFieldChange, appointmentData, ...restProps }: AppointmentForm.BasicLayoutProps) => {
-  const onCustomFieldChange = (nextValue: string) => {
-    onFieldChange({ customField: nextValue });
+const BasicLayout = ({ onFieldChange, appointmentData, toggleEdit, ...restProps }: 
+    AppointmentForm.BasicLayoutProps & {
+      toggleEdit?: (shouldAllowEdit: boolean) => void;
+    }) => {
+  const { user: currentUser } = useAuth();
+  const { participants } = appointmentData;
+  let isCreateNewIntent = appointmentData.isCreateNewIntent;
+  
+  const onInvitationChange = (nextValue: string[]) => {
+    onFieldChange({ 
+      participants: nextValue.map(email => ({ 
+        email,
+        isOrganizer: currentUser?.email === email,
+        decision: currentUser?.email === email ? "accepted" : "maybe"
+      })),
+      isCreateNewIntent
+    });
   };
+  
+  if (!participants && isCreateNewIntent === undefined) {
+    isCreateNewIntent = true;
+    toggleEdit && toggleEdit(true);
+  } else if (participants && isCreateNewIntent === undefined) {
+    isCreateNewIntent = false;
+    const organizerInfo = (participants as Participant[]).find(({ isOrganizer }) => isOrganizer);
+    if (organizerInfo && organizerInfo.email !== currentUser?.email) {
+      toggleEdit && toggleEdit(false);
+    } else {
+      toggleEdit && toggleEdit(true);
+    }
+  }
 
   return (
     <AppointmentForm.BasicLayout
@@ -11,7 +42,19 @@ const BasicLayout = ({ onFieldChange, appointmentData, ...restProps }: Appointme
       onFieldChange={onFieldChange}
       {...restProps}
     >
-      This is just a test
+      <h2>Invitations</h2>
+      {
+        isCreateNewIntent && 
+        <ChipInput
+          onChange={onInvitationChange}
+          placeholder={"Type emails to invite..."}
+          fullWidth
+        />
+      }
+      {
+        !isCreateNewIntent && 
+        <ParticipantList data={participants ?? []} />
+      }
     </AppointmentForm.BasicLayout>
   );
 };

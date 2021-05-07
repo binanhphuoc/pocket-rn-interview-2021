@@ -92,8 +92,10 @@ const Home = () => {
               showDeleteButton={allowEdit}
             />
             <AppointmentForm 
-              basicLayoutComponent={AppointmentFormBasicLayout}
+              basicLayoutComponent={(props) => (<AppointmentFormBasicLayout {...props} toggleEdit={(allowEdit: boolean) => setAllowEdit(allowEdit)}/>)}
               textEditorComponent={AppointmentFormTextEditor}
+              booleanEditorComponent={() => null}
+              readOnly={!allowEdit}
               messages={{
                 moreInformationLabel: ''
               }}
