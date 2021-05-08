@@ -59,6 +59,12 @@ Before you start, please know that this app version handles errors under the sce
 - In the appointment editor, make sure you have a title and at least one invitation.
 - When adding invitations, type emails one-by-one separated by either `[Enter]` or `[Comma]`.
 - Click `Save` when you have done.
+
+```
+Notes:
+The curret app version does not allow editing details of an existing appointment, 
+even if you are the organizer.
+```
 ![alt text](https://github.com/binanhphuoc/pocket-rn-interview-2021/blob/main/static/set-up-appointment.png?raw=true)
 
 
