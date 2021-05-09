@@ -57,13 +57,14 @@ Before you start, please know that this app version handles errors under the sce
 - Login with one account to set up an appointment.
 - Once you're logged in, double-click any time frame to schedule a new appointment.
 - In the appointment editor, make sure you have a title and at least one invitation.
-- When adding invitations, type emails one-by-one separated by either `[Enter]` or `[Comma]`.
+- When adding invitations, type emails one-by-one separated by either `[Enter]` or `[Comma]`. Make sure that you type a trailing `[Enter]` or `[Comma]` for the last email, or else the last email will not appear in a bubble. Only bubbled emails are sent to the server.
 - Click `Save` when you have done.
 
 ```
 Notes:
-The curret app version does not allow editing details of an existing appointment, 
+- The current app version does not allow editing details of an existing appointment, 
 even if you are the organizer.
+- Again, make sure that you type a trailing [Enter] or [Comma] for the last email, or else the last email will not appear in a bubble. Only bubbled emails are sent to the server.
 ```
 ![alt text](https://github.com/binanhphuoc/pocket-rn-interview-2021/blob/main/static/set-up-appointment.png?raw=true)
 
@@ -82,5 +83,15 @@ Decline: Red
 
 ![alt text](https://github.com/binanhphuoc/pocket-rn-interview-2021/blob/main/static/color-appointments.png?raw=true)
 
+## Plan for Upcoming Features
 
+There will always be plan to improve the UX. If I have a lot of time, I would consider a redesign of the whole app, considering the following features:
+- Display errors to user using snackbars.
+- Allow users to show or hide Declined appointments.
+- Allow users to drag appointments around.
+- Allow users to edit/delete an appointment and invite more accounts.
+- Allow users to create recurring appointments.
+- Allow users to see notifications of unseen appointments, and be able to accept or decline them right in the notification panel.
+- Allow users to see and edit their profiles.
+- Allow users to customize theme.
 
